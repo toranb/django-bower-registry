@@ -1,19 +1,9 @@
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
-
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
-
 MANAGERS = ADMINS
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '.local_db',
-    }
-}
-
 ALLOWED_HOSTS = []
 TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
