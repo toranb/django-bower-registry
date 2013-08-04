@@ -1,7 +1,7 @@
 from api.models import Package
 from django.http import Http404
 from rest_framework import serializers
-from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView
 
 
 class PackageSerializer(serializers.ModelSerializer):
@@ -13,6 +13,14 @@ class PackageSerializer(serializers.ModelSerializer):
 
 class PackagesListView(ListCreateAPIView):
     model = Package
+
+
+class PackagesSearchView(ListAPIView):
+    model = Package
+
+    def get_queryset(self):
+        search = self.kwargs['name']
+        return self.model.objects.filter(name__icontains=search)
 
 
 class PackagesFindView(RetrieveAPIView):

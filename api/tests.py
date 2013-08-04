@@ -19,6 +19,7 @@ class PackagesListViewTests(TestCase):
         self.assertEqual(results[1]['url'], '/bar')
         self.assertEqual(results[1]['name'], 'moment')
 
+
 class PackagesFindViewTests(TestCase):
 
     def test_returns_package_by_name(self):
@@ -35,3 +36,23 @@ class PackagesFindViewTests(TestCase):
         url = reverse("find", kwargs={'name': 'wat'})
         response = self.client.get(url)
         self.assertEqual(404, response.status_code)
+
+
+class PackagesSearchViewTests(TestCase):
+
+    def test_returns_list_of_packages_when_search_finds_match(self):
+        Package.objects.create(name="ember", url="/foo")
+        url = reverse("search", kwargs={'name': 'mbe'})
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        results = json.loads(response.content)
+        self.assertEqual(1, len(results))
+        self.assertEqual(results[0]['url'], '/foo')
+        self.assertEqual(results[0]['name'], 'ember')
+
+    def test_returns_empty_list_when_search_finds_no_match(self):
+        Package.objects.create(name="ember", url="/foo")
+        url = reverse("search", kwargs={'name': 'wat'})
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('[]', response.content)
