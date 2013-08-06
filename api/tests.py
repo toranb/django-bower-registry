@@ -37,6 +37,15 @@ class PackagesFindViewTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(404, response.status_code)
 
+    def test_returns_package_when_name_includes_hyphen(self):
+        Package.objects.create(name="ember-data", url="/foo")
+        url = reverse("find", kwargs={'name': 'ember-data'})
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        result = json.loads(response.content)
+        self.assertEqual(result['url'], '/foo')
+        self.assertEqual(result['name'], 'ember-data')
+
 
 class PackagesSearchViewTests(TestCase):
 
@@ -56,3 +65,13 @@ class PackagesSearchViewTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
         self.assertEqual('[]', response.content)
+
+    def test_returns_list_of_packages_when_name_includes_hyphen(self):
+        Package.objects.create(name="ember-data", url="/foo")
+        url = reverse("search", kwargs={'name': 'ember-da'})
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        results = json.loads(response.content)
+        self.assertEqual(1, len(results))
+        self.assertEqual(results[0]['url'], '/foo')
+        self.assertEqual(results[0]['name'], 'ember-data')
