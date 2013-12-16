@@ -1,6 +1,8 @@
 import json
 from api.models import Package
 from django.test import TestCase
+from south.migration import Migrations
+from django.db.utils import OperationalError
 from django.core.urlresolvers import reverse
 
 
@@ -75,3 +77,36 @@ class PackagesSearchViewTests(TestCase):
         self.assertEqual(1, len(results))
         self.assertEqual(results[0]['url'], '/foo')
         self.assertEqual(results[0]['name'], 'ember-data')
+
+
+class TestORM(object):
+
+    def __init__(self):
+        self.Package =  Package
+
+
+class MigrationsTests(TestCase):
+
+    def setUp(self):
+        self.sut = self._pick_migration('0001_initial')
+
+    def test_forward_and_backwards_migrations_work(self):
+        self.sut.migration_instance().backwards(TestORM())
+        self.assertTableDoesNotExist()
+
+        self.sut.migration_instance().forwards(TestORM())
+        self.assertEqual([], list(Package.objects.all()))
+
+        self.sut.migration_instance().backwards(TestORM())
+        self.assertTableDoesNotExist()
+
+    def assertTableDoesNotExist(self):
+        with self.assertRaises(OperationalError) as c:
+            list(Package.objects.all())
+        self.assertEqual("no such table: api_package", c.exception.message)
+
+    def _pick_migration(self, name):
+        migrations = Migrations('api')
+        for migration in migrations:
+            if migration.full_name().split(".")[-1] == name:
+                return migration
