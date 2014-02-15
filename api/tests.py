@@ -103,7 +103,7 @@ class MigrationsTests(TestCase):
     def assertTableDoesNotExist(self):
         with self.assertRaises(OperationalError) as c:
             list(Package.objects.all())
-        self.assertEqual("no such table: api_package", c.exception.message)
+        self.assertEqual("no such table: api_package", c.exception.args[0])
 
     def _pick_migration(self, name):
         migrations = Migrations('api')
