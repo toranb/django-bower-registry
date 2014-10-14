@@ -13,22 +13,22 @@ class PackageSerializer(serializers.ModelSerializer):
 
 class PackagesListView(ListCreateAPIView):
     model = Package
+    serializer_class = PackageSerializer
 
 
 class PackagesSearchView(ListAPIView):
-    model = Package
+    serializer_class = PackageSerializer
 
     def get_queryset(self):
         search = self.kwargs['name']
-        return self.model.objects.filter(name__icontains=search)
+        return Package.objects.filter(name__icontains=search)
 
 
 class PackagesFindView(RetrieveAPIView):
-    model = Package
     serializer_class = PackageSerializer
 
     def get_object(self):
         try:
-            return self.model.objects.get(name=self.kwargs['name'])
+            return Package.objects.get(name=self.kwargs['name'])
         except Package.DoesNotExist:
             raise Http404
