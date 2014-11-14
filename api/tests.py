@@ -48,6 +48,14 @@ class PackagesFindViewTests(TestCase):
         self.assertEqual(result['url'], '/foo')
         self.assertEqual(result['name'], 'ember-data')
 
+    def test_returns_package_when_name_includes_period(self):
+        Package.objects.create(name="backbone.wreqr", url="/foo")
+        url = reverse("find", kwargs={'name': 'backbone.wreqr'})
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        result = json.loads(response.content)
+        self.assertEqual(result['name'], 'backbone.wreqr')
+
 
 class PackagesSearchViewTests(TestCase):
 
@@ -77,6 +85,16 @@ class PackagesSearchViewTests(TestCase):
         self.assertEqual(1, len(results))
         self.assertEqual(results[0]['url'], '/foo')
         self.assertEqual(results[0]['name'], 'ember-data')
+
+    def test_returns_list_of_packages_when_name_includes_period(self):
+        Package.objects.create(name="backbone.wreqr", url="/foo")
+        url = reverse("search", kwargs={'name': 'backbone.wre'})
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        results = json.loads(response.content)
+        self.assertEqual(1, len(results))
+        self.assertEqual(results[0]['url'], '/foo')
+        self.assertEqual(results[0]['name'], 'backbone.wreqr')
 
 
 class TestORM(object):
