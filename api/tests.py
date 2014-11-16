@@ -56,6 +56,15 @@ class PackagesFindViewTests(TestCase):
         result = json.loads(response.content)
         self.assertEqual(result['name'], 'backbone.wreqr')
 
+    def test_can_update_package(self):
+        Package.objects.create(name="ember", url="/foo")
+        url = reverse("find", kwargs={'name': 'ember'})
+        response = self.client.put(url, {'url': '/bar', 'name': 'ember'}, 'application/json', content_type=MULTIPART_CONTENT)
+        self.assertEqual(200, response.status_code)
+        result = json.loads(response.content)
+        self.assertEqual(result['url'], '/bar')
+        self.assertEqual(result['name'], 'ember')
+
 
 class PackagesSearchViewTests(TestCase):
 
@@ -74,7 +83,7 @@ class PackagesSearchViewTests(TestCase):
         url = reverse("search", kwargs={'name': 'wat'})
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
-        self.assertEqual('[]', response.content)
+        self.assertEqual(b'[]', response.content)
 
     def test_returns_list_of_packages_when_name_includes_hyphen(self):
         Package.objects.create(name="ember-data", url="/foo")
