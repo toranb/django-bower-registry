@@ -4,6 +4,7 @@ from django.test import TestCase
 from south.migration import Migrations
 from django.db.utils import OperationalError
 from django.core.urlresolvers import reverse
+from django.test.client import BOUNDARY, MULTIPART_CONTENT, encode_multipart
 
 
 class PackagesListViewTests(TestCase):
@@ -59,7 +60,8 @@ class PackagesFindViewTests(TestCase):
     def test_can_update_package(self):
         Package.objects.create(name="ember", url="/foo")
         url = reverse("find", kwargs={'name': 'ember'})
-        response = self.client.put(url, {'url': '/bar', 'name': 'ember'}, 'application/json', content_type=MULTIPART_CONTENT)
+        encoded_data = encode_multipart(BOUNDARY, {'url': '/bar', 'name': 'ember'})
+        response = self.client.put(url, encoded_data, content_type=MULTIPART_CONTENT)
         self.assertEqual(200, response.status_code)
         result = json.loads(response.content)
         self.assertEqual(result['url'], '/bar')
